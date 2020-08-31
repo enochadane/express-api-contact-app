@@ -13,6 +13,8 @@ const multer = require('multer');
 
 const app = express();
 
+const PORT = process.env.PORT || 3000;
+
 // app.use(morgan);
 
 app.use(function(req, res, next) {
@@ -41,6 +43,6 @@ app.post('/', (req, res) => {
 app.use('/contacts', contactRouter);
 app.use('/user', userRouter);
 
-app.listen(3000, () => {
+app.listen(PORT, () => {
     console.log('server started..');
 });

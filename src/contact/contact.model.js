@@ -22,6 +22,9 @@ var ContactSchema = new mongoose.Schema({
     },
     notes: {
         type: String
+    },
+    creatorId: {
+        type: String
     }
 });
 

@@ -1,3 +1,6 @@
+const Contact = require('../contact/contact.model');
+const { findById } = require('../contact/contact.model');
+
 const getOne = model => async (req, res) => {
     try {
         const doc = await model.findOne({ _id: req.params.id });
@@ -25,7 +28,10 @@ const getMany = model => async (req, res) => {
 }
 
 const createOne = model => async (req, res) => {
-    // const filePath = req.file.path;
+    var filePath = ''
+    if (req.file) {
+        filePath = req.file.path
+    }
     try {
         const doc = await model.create({
             fullName: req.body.fullName,
@@ -34,9 +40,10 @@ const createOne = model => async (req, res) => {
             phone: req.body.phone,
             email: req.body.email,
             notes: req.body.notes,
-            profilePicture: req.file.path
+            profilePicture: filePath,
+            creatorId: req.body.creatorId
         });
-        console.log(req.file);
+        console.log(req.body);
         res.status(201).json({ data: doc });
     } catch(e) {
         console.error(e);
@@ -45,14 +52,37 @@ const createOne = model => async (req, res) => {
 }
 
 const updateOne = model => async (req, res) => {
+    var filePath;
+    if (req.file) {
+        filePath = req.file.path
+    }
+    Contact.findById({ _id: req.body._id })
+        .exec()
+        .then(contact => {
+            filePath = contact.profilePicture
+        })
+        .catch(err => console.log(err));
+    console.log(filePath)
     try {
-        const updatedDoc = await model
-            .findOneAndUpdate(
+        const updatedDoc = await model.findOneAndUpdate(
                 {
                     _id: req.params.id
                 },
-                req.body,
-                { new: true }
+                {$set: {
+                    'fullName': req.body.fullName,
+                    'company': req.body.company,
+                    'jobTitle': req.body.jobTitle,
+                    'phone': req.body.phone,
+                    'email': req.body.email,
+                    'notes': req.body.notes,
+                    'profilePicture': filePath
+                }},
+                { new: true },
+                (err, doc) => {
+                    if(err){
+                        console.log("update error" + err);
+                    }
+                }
             );
 
         if (!updatedDoc) {

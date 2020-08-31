@@ -48,12 +48,12 @@ function checkFileType(file, cb) {
 router
     .route('/')
     .get(checkAuth, controllers.getMany)
-    .post(checkAuth ,upload.single('profilePicture'), controllers.createOne);
+    .post(checkAuth, upload.single('profilePicture'), controllers.createOne);
 
 router
     .route('/:id')
     .get(checkAuth, controllers.getOne)
-    .patch(checkAuth, controllers.updateOne)
+    .patch(checkAuth, upload.single('profilePicture'), controllers.updateOne)
     .delete(checkAuth, controllers.removeOne);
 
 module.exports = router;

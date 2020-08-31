@@ -1,5 +1,6 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const mongoose = require('mongoose');
 
 const User = require('./user.model');
 
@@ -11,6 +12,8 @@ exports.user_signup = (req, res, next) => {
             });
         } else {
             const user = new User({
+                _id: mongoose.Types.ObjectId(),
+                name: req.body.name,
                 email: req.body.email,
                 password: hash
             });
@@ -27,7 +30,7 @@ exports.user_signup = (req, res, next) => {
                 });
             });
         }
-    });    
+    });
 }
 
 exports.user_login = (req, res, next) => {
@@ -47,13 +50,14 @@ exports.user_login = (req, res, next) => {
             }
             if (result) {
                 const token = jwt.sign({
-                    _id: user._id,
+                    _id: user[0]._id,
+                    name: user[0].name,
                     email: user[0].email,
                     password: user[0].password
                 }, 
                 process.env.JWT_KEY,
                 {
-                    expiresIn: '1h'
+                    expiresIn: '3h'
                 }
                 );
                 return res.status(200).json({
@@ -87,9 +91,11 @@ exports.user_delete = (req, res, next) => {
 }
 
 exports.me = (req, res) => {
-    res.status(200).json({
-        data: req.user
-    });
+    User.find({ email: 'henokadane8@gmail.com' })
+    .exec()
+    .then(user => res.status(200).send({
+        data: user._id
+    })).catch(err => console.log(err));
 }
 
 exports.updateMe = async (req, res) => {
